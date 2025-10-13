@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { X, TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
+import { X, TrendingUp, TrendingDown } from 'lucide-react';
 import { useState } from 'react';
 
 interface TradingModalProps {

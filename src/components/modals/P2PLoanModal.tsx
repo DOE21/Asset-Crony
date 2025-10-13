@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { X, DollarSign, Calendar, Shield, TrendingUp } from 'lucide-react';
+import { X, DollarSign, Shield, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
 interface P2PLoanModalProps {
