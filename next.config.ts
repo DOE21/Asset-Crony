@@ -4,9 +4,10 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
-  // Explicitly disable static export
-  output: undefined,
-  distDir: undefined
+  // Use static export for deployment
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out'
 };
 
 export default nextConfig;
