@@ -51,6 +51,7 @@ export default function Home() {
               <a href="#how-it-works" className="text-gray-600 hover:text-navy transition-colors">How It Works</a>
               <a href="#why-asset-crony" className="text-gray-600 hover:text-navy transition-colors">Why Asset Crony</a>
               <Link href="/assets" className="text-gray-600 hover:text-navy transition-colors">Assets</Link>
+              <Link href="/secondary-market" className="text-gray-600 hover:text-navy transition-colors">Secondary Market</Link>
               <Link href="/p2p-lending" className="text-gray-600 hover:text-navy transition-colors">P2P Lending</Link>
               <a href="#education" className="text-gray-600 hover:text-navy transition-colors">Education</a>
               <Link href="/signup" className="bg-navy text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors inline-block">
@@ -68,21 +69,22 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
-            <div className="px-4 py-2 space-y-2">
-              <a href="#how-it-works" className="block py-2 text-gray-600 hover:text-navy">How It Works</a>
-              <a href="#why-asset-crony" className="block py-2 text-gray-600 hover:text-navy">Why Asset Crony</a>
-              <Link href="/assets" className="block py-2 text-gray-600 hover:text-navy">Assets</Link>
-              <Link href="/p2p-lending" className="block py-2 text-gray-600 hover:text-navy">P2P Lending</Link>
-              <a href="#education" className="block py-2 text-gray-600 hover:text-navy">Education</a>
-              <Link href="/signup" className="w-full bg-navy text-white px-6 py-2 rounded-lg mt-4 inline-block text-center">
-                Get Early Access
-              </Link>
-            </div>
-          </div>
-        )}
+            {/* Mobile Navigation */}
+            {isMenuOpen && (
+              <div className="md:hidden bg-white border-t border-gray-200">
+                <div className="px-4 py-2 space-y-2">
+                  <a href="#how-it-works" className="block py-2 text-gray-600 hover:text-navy">How It Works</a>
+                  <a href="#why-asset-crony" className="block py-2 text-gray-600 hover:text-navy">Why Asset Crony</a>
+                  <Link href="/assets" className="block py-2 text-gray-600 hover:text-navy">Assets</Link>
+                  <Link href="/secondary-market" className="block py-2 text-gray-600 hover:text-navy">Secondary Market</Link>
+                  <Link href="/p2p-lending" className="block py-2 text-gray-600 hover:text-navy">P2P Lending</Link>
+                  <a href="#education" className="block py-2 text-gray-600 hover:text-navy">Education</a>
+                  <Link href="/signup" className="w-full bg-navy text-white px-6 py-2 rounded-lg mt-4 inline-block text-center">
+                    Get Early Access
+                  </Link>
+                </div>
+              </div>
+            )}
       </nav>
 
       {/* Hero Section */}
@@ -683,15 +685,15 @@ export default function Home() {
               </div>
             </div>
 
-            <div>
-              <h3 className="font-display font-semibold mb-4">Platform</h3>
-              <ul className="space-y-2">
-                <li><Link href="/assets" className="text-gray-400 hover:text-white transition-colors">Asset Listings</Link></li>
-                <li><Link href="/p2p-lending" className="text-gray-400 hover:text-white transition-colors">P2P Lending</Link></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Secondary Market</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Portfolio Dashboard</a></li>
-              </ul>
-            </div>
+                <div>
+                  <h3 className="font-display font-semibold mb-4">Platform</h3>
+                  <ul className="space-y-2">
+                    <li><Link href="/assets" className="text-gray-400 hover:text-white transition-colors">Asset Listings</Link></li>
+                    <li><Link href="/secondary-market" className="text-gray-400 hover:text-white transition-colors">Secondary Market</Link></li>
+                    <li><Link href="/p2p-lending" className="text-gray-400 hover:text-white transition-colors">P2P Lending</Link></li>
+                    <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Portfolio Dashboard</a></li>
+                  </ul>
+                </div>
 
             <div>
               <h3 className="font-display font-semibold mb-4">Resources</h3>

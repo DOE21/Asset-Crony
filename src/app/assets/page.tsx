@@ -256,13 +256,21 @@ export default function AssetsPage() {
               <span className="ml-2 text-xl font-display font-bold text-navy">Asset Crony</span>
             </Link>
             
-            <Link
-              href="/"
-              className="flex items-center text-gray-600 hover:text-navy transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Homepage
-            </Link>
+            <div className="flex items-center space-x-6">
+              <Link
+                href="/"
+                className="flex items-center text-gray-600 hover:text-navy transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Homepage
+              </Link>
+              <Link
+                href="/secondary-market"
+                className="text-gray-600 hover:text-navy transition-colors"
+              >
+                Secondary Market
+              </Link>
+            </div>
           </div>
         </div>
       </div>
