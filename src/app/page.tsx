@@ -53,7 +53,7 @@ export default function Home() {
               <Link href="/assets" className="text-gray-600 hover:text-navy transition-colors">Assets</Link>
               <Link href="/secondary-market" className="text-gray-600 hover:text-navy transition-colors">Secondary Market</Link>
               <Link href="/p2p-lending" className="text-gray-600 hover:text-navy transition-colors">P2P Lending</Link>
-              <a href="#education" className="text-gray-600 hover:text-navy transition-colors">Education</a>
+              <Link href="/education" className="text-gray-600 hover:text-navy transition-colors">Education</Link>
               <Link href="/signup" className="bg-navy text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors inline-block">
                 Get Early Access
               </Link>
@@ -78,7 +78,7 @@ export default function Home() {
                   <Link href="/assets" className="block py-2 text-gray-600 hover:text-navy">Assets</Link>
                   <Link href="/secondary-market" className="block py-2 text-gray-600 hover:text-navy">Secondary Market</Link>
                   <Link href="/p2p-lending" className="block py-2 text-gray-600 hover:text-navy">P2P Lending</Link>
-                  <a href="#education" className="block py-2 text-gray-600 hover:text-navy">Education</a>
+                  <Link href="/education" className="block py-2 text-gray-600 hover:text-navy">Education</Link>
                   <Link href="/signup" className="w-full bg-navy text-white px-6 py-2 rounded-lg mt-4 inline-block text-center">
                     Get Early Access
                   </Link>
@@ -698,7 +698,7 @@ export default function Home() {
             <div>
               <h3 className="font-display font-semibold mb-4">Resources</h3>
               <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Education</a></li>
+                <li><Link href="/education" className="text-gray-400 hover:text-white transition-colors">Education</Link></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">FAQs</a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">About</a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
