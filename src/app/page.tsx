@@ -46,18 +46,19 @@ export default function Home() {
               <span className="ml-2 text-xl font-display font-bold text-navy">Asset Crony</span>
             </div>
             
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#how-it-works" className="text-gray-600 hover:text-navy transition-colors">How It Works</a>
-              <a href="#why-asset-crony" className="text-gray-600 hover:text-navy transition-colors">Why Asset Crony</a>
-              <Link href="/assets" className="text-gray-600 hover:text-navy transition-colors">Assets</Link>
-              <Link href="/secondary-market" className="text-gray-600 hover:text-navy transition-colors">Secondary Market</Link>
-              <Link href="/p2p-lending" className="text-gray-600 hover:text-navy transition-colors">P2P Lending</Link>
-              <Link href="/education" className="text-gray-600 hover:text-navy transition-colors">Education</Link>
-              <Link href="/signup" className="bg-navy text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors inline-block">
-                Get Early Access
-              </Link>
-            </div>
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center space-x-8">
+                      <a href="#how-it-works" className="text-gray-600 hover:text-navy transition-colors">How It Works</a>
+                      <a href="#why-asset-crony" className="text-gray-600 hover:text-navy transition-colors">Why Asset Crony</a>
+                      <Link href="/assets" className="text-gray-600 hover:text-navy transition-colors">Assets</Link>
+                      <Link href="/secondary-market" className="text-gray-600 hover:text-navy transition-colors">Secondary Market</Link>
+                      <Link href="/p2p-lending" className="text-gray-600 hover:text-navy transition-colors">P2P Lending</Link>
+                      <Link href="/education" className="text-gray-600 hover:text-navy transition-colors">Education</Link>
+                      <Link href="/login" className="text-gray-600 hover:text-navy transition-colors">Login</Link>
+                      <Link href="/register" className="bg-navy text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors inline-block">
+                        Get Started
+                      </Link>
+                    </div>
 
             {/* Mobile menu button */}
             <button 
@@ -69,22 +70,23 @@ export default function Home() {
           </div>
         </div>
 
-            {/* Mobile Navigation */}
-            {isMenuOpen && (
-              <div className="md:hidden bg-white border-t border-gray-200">
-                <div className="px-4 py-2 space-y-2">
-                  <a href="#how-it-works" className="block py-2 text-gray-600 hover:text-navy">How It Works</a>
-                  <a href="#why-asset-crony" className="block py-2 text-gray-600 hover:text-navy">Why Asset Crony</a>
-                  <Link href="/assets" className="block py-2 text-gray-600 hover:text-navy">Assets</Link>
-                  <Link href="/secondary-market" className="block py-2 text-gray-600 hover:text-navy">Secondary Market</Link>
-                  <Link href="/p2p-lending" className="block py-2 text-gray-600 hover:text-navy">P2P Lending</Link>
-                  <Link href="/education" className="block py-2 text-gray-600 hover:text-navy">Education</Link>
-                  <Link href="/signup" className="w-full bg-navy text-white px-6 py-2 rounded-lg mt-4 inline-block text-center">
-                    Get Early Access
-                  </Link>
-                </div>
-              </div>
-            )}
+                    {/* Mobile Navigation */}
+                    {isMenuOpen && (
+                      <div className="md:hidden bg-white border-t border-gray-200">
+                        <div className="px-4 py-2 space-y-2">
+                          <a href="#how-it-works" className="block py-2 text-gray-600 hover:text-navy">How It Works</a>
+                          <a href="#why-asset-crony" className="block py-2 text-gray-600 hover:text-navy">Why Asset Crony</a>
+                          <Link href="/assets" className="block py-2 text-gray-600 hover:text-navy">Assets</Link>
+                          <Link href="/secondary-market" className="block py-2 text-gray-600 hover:text-navy">Secondary Market</Link>
+                          <Link href="/p2p-lending" className="block py-2 text-gray-600 hover:text-navy">P2P Lending</Link>
+                          <Link href="/education" className="block py-2 text-gray-600 hover:text-navy">Education</Link>
+                          <Link href="/login" className="block py-2 text-gray-600 hover:text-navy">Login</Link>
+                          <Link href="/register" className="w-full bg-navy text-white px-6 py-2 rounded-lg mt-4 inline-block text-center">
+                            Get Started
+                          </Link>
+                        </div>
+                      </div>
+                    )}
       </nav>
 
       {/* Hero Section */}
@@ -105,13 +107,13 @@ export default function Home() {
                 Start from $500 and co-own premium real estate across Canada.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                <Link href="/signup" className="bg-navy text-white px-8 py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center">
-                  Get Early Access
+                <Link href="/register" className="bg-navy text-white px-8 py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center">
+                  Start Investing
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-                <button className="border border-navy text-navy px-8 py-4 rounded-lg font-semibold hover:bg-navy hover:text-white transition-colors">
-                  How It Works
-                </button>
+                <Link href="/login" className="border border-navy text-navy px-8 py-4 rounded-lg font-semibold hover:bg-navy hover:text-white transition-colors">
+                  Sign In
+                </Link>
               </div>
 
               {/* Quick Access Cards */}
@@ -770,10 +772,10 @@ export default function Home() {
 
               <div className="flex gap-4">
                 <Link
-                  href="/signup"
+                  href="/register"
                   className="flex-1 bg-navy text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors text-center"
                 >
-                  Get Early Access
+                  Start Investing
                 </Link>
                 <button
                   onClick={() => setSelectedProperty(null)}
