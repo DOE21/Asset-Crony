@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
@@ -26,13 +26,13 @@ interface Loan {
   id: string;
   borrower: string;
   collateral: string;
-  amount: string;
-  rate: string;
-  term: string;
+  amount: number;
+  rate: number;
+  termMonths: number;
   status: 'Pending' | 'Approved' | 'Rejected' | 'Active' | 'Completed';
   progress: number;
-  funded: string;
-  remaining: string;
+  funded: number;
+  remaining: number;
 }
 
 export default function AdminLoans() {
@@ -41,70 +41,19 @@ export default function AdminLoans() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [loans, setLoans] = useState<Loan[]>([]);
   const router = useRouter();
 
-  const mockLoans: Loan[] = [
-    {
-      id: 'LOAN-001',
-      borrower: 'John Smith',
-      collateral: 'Toronto Duplex #AC-104',
-      amount: '$15,000',
-      rate: '8.5%',
-      term: '12 months',
-      status: 'Pending',
-      progress: 75,
-      funded: '$11,250',
-      remaining: '$3,750'
-    },
-    {
-      id: 'LOAN-002',
-      borrower: 'Sarah Johnson',
-      collateral: 'Vancouver Waterfront #AC-203',
-      amount: '$25,000',
-      rate: '7.2%',
-      term: '18 months',
-      status: 'Approved',
-      progress: 100,
-      funded: '$25,000',
-      remaining: '$0'
-    },
-    {
-      id: 'LOAN-003',
-      borrower: 'Mike Chen',
-      collateral: 'Montreal Office #AC-156',
-      amount: '$12,000',
-      rate: '9.1%',
-      term: '6 months',
-      status: 'Active',
-      progress: 100,
-      funded: '$12,000',
-      remaining: '$0'
-    },
-    {
-      id: 'LOAN-004',
-      borrower: 'Emily Davis',
-      collateral: 'Houston Single Family #AC-089',
-      amount: '$8,500',
-      rate: '6.8%',
-      term: '24 months',
-      status: 'Rejected',
-      progress: 0,
-      funded: '$0',
-      remaining: '$8,500'
-    },
-    {
-      id: 'LOAN-005',
-      borrower: 'Robert Wilson',
-      collateral: 'Toronto Duplex #AC-104',
-      amount: '$20,000',
-      rate: '7.8%',
-      term: '15 months',
-      status: 'Completed',
-      progress: 100,
-      funded: '$20,000',
-      remaining: '$0'
+  const fetchLoans = async () => {
+    try {
+      const res = await fetch('/api/loans', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setLoans(data.loans || []);
+    } catch {
+      // ignore
     }
-  ];
+  };
 
   useEffect(() => {
     const auth = localStorage.getItem('adminAuth');
@@ -116,18 +65,27 @@ export default function AdminLoans() {
     setIsLoading(false);
   }, [router]);
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchLoans();
+    const id = setInterval(fetchLoans, 15000);
+    return () => clearInterval(id);
+  }, [isAuthenticated]);
+
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
     router.push('/admin');
   };
 
-  const filteredLoans = mockLoans.filter(loan => {
-    const matchesSearch = loan.borrower.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         loan.collateral.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         loan.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || loan.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredLoans = useMemo(() => {
+    return loans.filter(loan => {
+      const matchesSearch = loan.borrower.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           loan.collateral.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           loan.id.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'All' || loan.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [loans, searchTerm, statusFilter]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -294,10 +252,10 @@ export default function AdminLoans() {
           {/* Summary cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             {[
-              { title: 'Total Loans', value: mockLoans.length.toString(), icon: DollarSign, color: 'bg-blue-500' },
-              { title: 'Active Loans', value: mockLoans.filter(l => l.status === 'Active').length.toString(), icon: Clock, color: 'bg-green-500' },
-              { title: 'Pending Review', value: mockLoans.filter(l => l.status === 'Pending').length.toString(), icon: Percent, color: 'bg-yellow-500' },
-              { title: 'Total Volume', value: '$80.5K', icon: TrendingUp, color: 'bg-purple-500' },
+              { title: 'Total Loans', value: loans.length.toString(), icon: DollarSign, color: 'bg-blue-500' },
+              { title: 'Active Loans', value: loans.filter(l => l.status === 'Active').length.toString(), icon: Clock, color: 'bg-green-500' },
+              { title: 'Pending Review', value: loans.filter(l => l.status === 'Pending').length.toString(), icon: Percent, color: 'bg-yellow-500' },
+              { title: 'Total Volume', value: '$' + loans.reduce((sum, l) => sum + l.amount, 0).toLocaleString(), icon: TrendingUp, color: 'bg-purple-500' },
             ].map((stat, index) => (
               <motion.div
                 key={stat.title}
@@ -379,7 +337,7 @@ export default function AdminLoans() {
                         {loan.rate}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {loan.term}
+                        {loan.termMonths} months
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -435,7 +393,7 @@ export default function AdminLoans() {
           {/* Pagination */}
           <div className="mt-6 flex items-center justify-between">
             <div className="text-sm text-gray-700">
-              Showing {filteredLoans.length} of {mockLoans.length} loans
+              Showing {filteredLoans.length} of {loans.length} loans
             </div>
             <div className="flex items-center space-x-2">
               <button className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">

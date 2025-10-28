@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
@@ -14,24 +14,23 @@ import {
   Menu,
   X,
   Search,
-  Filter,
   Plus,
   Edit,
   Trash2,
   Eye,
-  MapPin
+  MapPin,
+  ArrowUpDown
 } from 'lucide-react';
 
 interface Property {
   id: string;
-  name: string;
+  propertyName: string;
   location: string;
-  value: string;
-  ownershipDistribution: string;
-  status: 'Listed' | 'Sold' | 'Pending';
-  yield: string;
-  appreciationRate: string;
-  imageUrl: string;
+  pricePerShare: number;
+  yield: number;
+  volume24h: number;
+  status: 'For Sale' | 'Sold' | 'Pending';
+  ownershipDistribution: number;
 }
 
 export default function AdminProperties() {
@@ -40,55 +39,22 @@ export default function AdminProperties() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [sortBy, setSortBy] = useState<'name' | 'yield' | 'volume' | 'price'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [properties, setProperties] = useState<Property[]>([]);
   const router = useRouter();
 
-  const mockProperties: Property[] = [
-    {
-      id: 'AC-104',
-      name: 'Toronto Duplex',
-      location: 'Toronto, ON',
-      value: '$2,500,000',
-      ownershipDistribution: '45% sold',
-      status: 'Listed',
-      yield: '8.2%',
-      appreciationRate: '+5.3%',
-      imageUrl: '/images/toronto-duplex.jpg'
-    },
-    {
-      id: 'AC-089',
-      name: 'Houston Single Family',
-      location: 'Houston, TX',
-      value: '$1,800,000',
-      ownershipDistribution: '78% sold',
-      status: 'Listed',
-      yield: '7.6%',
-      appreciationRate: '+3.1%',
-      imageUrl: '/images/houston-home.jpg'
-    },
-    {
-      id: 'AC-156',
-      name: 'Montreal Office Complex',
-      location: 'Montreal, QC',
-      value: '$4,200,000',
-      ownershipDistribution: '100% sold',
-      status: 'Sold',
-      yield: '6.8%',
-      appreciationRate: '+2.7%',
-      imageUrl: '/images/montreal-office.jpg'
-    },
-    {
-      id: 'AC-203',
-      name: 'Vancouver Waterfront',
-      location: 'Vancouver, BC',
-      value: '$3,500,000',
-      ownershipDistribution: '23% sold',
-      status: 'Pending',
-      yield: '9.1%',
-      appreciationRate: '+7.2%',
-      imageUrl: '/images/vancouver-waterfront.jpg'
+  const fetchProperties = async () => {
+    try {
+      const res = await fetch('/api/market/listings', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setProperties(data.listings || []);
+    } catch {
+      // ignore
     }
-  ];
+  };
 
   useEffect(() => {
     const auth = localStorage.getItem('adminAuth');
@@ -100,22 +66,46 @@ export default function AdminProperties() {
     setIsLoading(false);
   }, [router]);
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchProperties();
+    const id = setInterval(fetchProperties, 12000);
+    return () => clearInterval(id);
+  }, [isAuthenticated]);
+
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
     router.push('/admin');
   };
 
-  const filteredProperties = mockProperties.filter(property => {
-    const matchesSearch = property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         property.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         property.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || property.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredAndSortedProperties = useMemo(() => {
+    const filtered = properties.filter(property => {
+      const matchesSearch = property.propertyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           property.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           property.id.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'All' || property.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+
+    filtered.sort((a, b) => {
+      let aVal: string | number, bVal: string | number;
+      switch (sortBy) {
+        case 'name': aVal = a.propertyName; bVal = b.propertyName; break;
+        case 'yield': aVal = a.yield; bVal = b.yield; break;
+        case 'volume': aVal = a.volume24h; bVal = b.volume24h; break;
+        case 'price': aVal = a.pricePerShare; bVal = b.pricePerShare; break;
+        default: return 0;
+      }
+      if (sortOrder === 'asc') return aVal > bVal ? 1 : -1;
+      return aVal < bVal ? 1 : -1;
+    });
+
+    return filtered;
+  }, [properties, searchTerm, statusFilter, sortBy, sortOrder]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Listed': return 'bg-green-100 text-green-800';
+      case 'For Sale': return 'bg-green-100 text-green-800';
       case 'Sold': return 'bg-blue-100 text-blue-800';
       case 'Pending': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
@@ -258,13 +248,26 @@ export default function AdminProperties() {
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent"
                 >
                   <option value="All">All Status</option>
-                  <option value="Listed">Listed</option>
+                  <option value="For Sale">For Sale</option>
                   <option value="Sold">Sold</option>
                   <option value="Pending">Pending</option>
                 </select>
-                <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Filter className="h-4 w-4 mr-2" />
-                  More Filters
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'name' | 'yield' | 'volume' | 'price')}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent"
+                >
+                  <option value="name">Sort by Name</option>
+                  <option value="yield">Sort by Yield</option>
+                  <option value="volume">Sort by Volume</option>
+                  <option value="price">Sort by Price</option>
+                </select>
+                <button 
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  {sortOrder === 'asc' ? 'Asc' : 'Desc'}
                 </button>
               </div>
             </div>
@@ -272,7 +275,7 @@ export default function AdminProperties() {
 
           {/* Properties grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProperties.map((property, index) => (
+            {filteredAndSortedProperties.map((property, index) => (
               <motion.div
                 key={property.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -286,7 +289,7 @@ export default function AdminProperties() {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="text-lg font-display font-semibold text-navy">{property.name}</h3>
+                      <h3 className="text-lg font-display font-semibold text-navy">{property.propertyName}</h3>
                       <p className="text-sm text-gray-600 flex items-center">
                         <MapPin className="h-4 w-4 mr-1" />
                         {property.location}
@@ -303,20 +306,20 @@ export default function AdminProperties() {
                       <span className="font-medium text-navy">{property.id}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Value:</span>
-                      <span className="font-medium text-navy">{property.value}</span>
+                      <span className="text-gray-600">Price/Share:</span>
+                      <span className="font-medium text-navy">${property.pricePerShare}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Ownership:</span>
-                      <span className="font-medium text-navy">{property.ownershipDistribution}</span>
+                      <span className="font-medium text-navy">{(property.ownershipDistribution * 100).toFixed(0)}% sold</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Yield:</span>
-                      <span className="font-medium text-green-600">{property.yield}</span>
+                      <span className="font-medium text-green-600">{property.yield}%</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Appreciation:</span>
-                      <span className="font-medium text-green-600">{property.appreciationRate}</span>
+                      <span className="text-gray-600">24h Volume:</span>
+                      <span className="font-medium text-navy">${property.volume24h.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -342,7 +345,7 @@ export default function AdminProperties() {
           </div>
 
           {/* Empty state */}
-          {filteredProperties.length === 0 && (
+          {filteredAndSortedProperties.length === 0 && (
             <div className="text-center py-12">
               <Building2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>

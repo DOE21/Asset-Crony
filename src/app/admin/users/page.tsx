@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
@@ -18,7 +18,8 @@ import {
   Eye,
   UserX,
   Trash2,
-  Download
+  Download,
+  X as CloseIcon
 } from 'lucide-react';
 
 interface User {
@@ -27,8 +28,14 @@ interface User {
   email: string;
   status: 'Active' | 'Suspended' | 'Pending';
   dateJoined: string;
-  portfolioValue: string;
-  lastLogin: string;
+  portfolioValue: number;
+  portfolioYield: number;
+  holdings: Array<{
+    propertyId: string;
+    name: string;
+    shares: number;
+    value: number;
+  }>;
 }
 
 export default function AdminUsers() {
@@ -37,55 +44,20 @@ export default function AdminUsers() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const router = useRouter();
 
-  const mockUsers: User[] = [
-    {
-      id: '1',
-      name: 'John Smith',
-      email: 'john.smith@email.com',
-      status: 'Active',
-      dateJoined: '2024-01-15',
-      portfolioValue: '$25,000',
-      lastLogin: '2024-12-19'
-    },
-    {
-      id: '2',
-      name: 'Sarah Johnson',
-      email: 'sarah.j@email.com',
-      status: 'Active',
-      dateJoined: '2024-02-03',
-      portfolioValue: '$18,500',
-      lastLogin: '2024-12-18'
-    },
-    {
-      id: '3',
-      name: 'Mike Chen',
-      email: 'mike.chen@email.com',
-      status: 'Suspended',
-      dateJoined: '2024-01-28',
-      portfolioValue: '$12,000',
-      lastLogin: '2024-12-10'
-    },
-    {
-      id: '4',
-      name: 'Emily Davis',
-      email: 'emily.davis@email.com',
-      status: 'Pending',
-      dateJoined: '2024-12-17',
-      portfolioValue: '$0',
-      lastLogin: 'Never'
-    },
-    {
-      id: '5',
-      name: 'Robert Wilson',
-      email: 'robert.w@email.com',
-      status: 'Active',
-      dateJoined: '2024-03-10',
-      portfolioValue: '$42,000',
-      lastLogin: '2024-12-19'
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/users', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch {
+      // ignore
     }
-  ];
+  };
 
   useEffect(() => {
     const auth = localStorage.getItem('adminAuth');
@@ -97,17 +69,26 @@ export default function AdminUsers() {
     setIsLoading(false);
   }, [router]);
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetchUsers();
+    const id = setInterval(fetchUsers, 15000);
+    return () => clearInterval(id);
+  }, [isAuthenticated]);
+
   const handleLogout = () => {
     localStorage.removeItem('adminAuth');
     router.push('/admin');
   };
 
-  const filteredUsers = mockUsers.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || user.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'All' || user.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [users, searchTerm, statusFilter]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -282,7 +263,7 @@ export default function AdminUsers() {
                       Portfolio Value
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Last Login
+                      Portfolio Yield
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -312,14 +293,17 @@ export default function AdminUsers() {
                         {new Date(user.dateJoined).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.portfolioValue}
+                        ${user.portfolioValue.toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.lastLogin}
+                        {user.portfolioYield}%
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
-                          <button className="text-navy hover:text-gray-800 transition-colors">
+                          <button 
+                            onClick={() => setSelectedUser(user)}
+                            className="text-navy hover:text-gray-800 transition-colors"
+                          >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button className="text-yellow-600 hover:text-yellow-800 transition-colors">
@@ -340,7 +324,7 @@ export default function AdminUsers() {
           {/* Pagination */}
           <div className="mt-6 flex items-center justify-between">
             <div className="text-sm text-gray-700">
-              Showing {filteredUsers.length} of {mockUsers.length} users
+              Showing {filteredUsers.length} of {users.length} users
             </div>
             <div className="flex items-center space-x-2">
               <button className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -359,6 +343,97 @@ export default function AdminUsers() {
           </div>
         </main>
       </div>
+
+      {/* User Profile Modal */}
+      {selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-display font-bold text-navy">User Profile</h2>
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <CloseIcon className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-navy mb-4">Personal Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm text-gray-600">Name:</span>
+                      <p className="font-medium text-navy">{selectedUser.name}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Email:</span>
+                      <p className="font-medium text-navy">{selectedUser.email}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Status:</span>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ml-2 ${getStatusColor(selectedUser.status)}`}>
+                        {selectedUser.status}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Date Joined:</span>
+                      <p className="font-medium text-navy">{new Date(selectedUser.dateJoined).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-navy mb-4">Portfolio Summary</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm text-gray-600">Total Value:</span>
+                      <p className="font-medium text-navy text-lg">${selectedUser.portfolioValue.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Average Yield:</span>
+                      <p className="font-medium text-green-600 text-lg">{selectedUser.portfolioYield}%</p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Properties Owned:</span>
+                      <p className="font-medium text-navy">{selectedUser.holdings.length}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold text-navy mb-4">Owned Properties</h3>
+                {selectedUser.holdings.length > 0 ? (
+                  <div className="space-y-3">
+                    {selectedUser.holdings.map((holding, index) => (
+                      <div key={index} className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium text-navy">{holding.name}</h4>
+                            <p className="text-sm text-gray-600">Property ID: {holding.propertyId}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-navy">{holding.shares} shares</p>
+                            <p className="text-sm text-gray-600">${holding.value.toLocaleString()}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 italic">No properties owned</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
