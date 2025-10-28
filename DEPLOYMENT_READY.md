@@ -134,3 +134,5 @@ If you need help with deployment:
 ---
 
 **Your Asset Crony fractional real estate investment platform is ready to revolutionize property investing in Canada! 🏠💰**
+
+

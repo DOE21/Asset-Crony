@@ -55,3 +55,5 @@ Once deployed, your Asset Crony platform will have:
 Your Asset Crony fractional real estate platform is now **fully configured** for successful deployment on Vercel! The `routes-manifest.json` error has been fixed by using standard Next.js build configuration.
 
 **Just deploy to Vercel and your professional platform will be live!** 🚀
+
+

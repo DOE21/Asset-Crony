@@ -79,3 +79,5 @@ Your project is now configured for **static export** which works with multiple h
 Your Asset Crony fractional real estate platform is now **ready for deployment** on multiple platforms. The static export configuration ensures compatibility with all major hosting services.
 
 **Choose your preferred platform and deploy!** 🚀
+
+

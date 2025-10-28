@@ -165,3 +165,5 @@ Once deployed, your Asset Crony website will be live at your domain with:
 - ✅ SSL encryption
 
 Your fractional real estate investment platform is ready to attract investors!
+
+

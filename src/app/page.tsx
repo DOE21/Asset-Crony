@@ -715,6 +715,7 @@ export default function Home() {
                 <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link>
                 <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</Link>
                 <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Regulatory Compliance</a>
+                <Link href="/admin" className="text-gray-400 hover:text-white text-sm transition-colors">Admin Login</Link>
               </div>
             </div>
             <p className="text-gray-500 text-xs mt-4">

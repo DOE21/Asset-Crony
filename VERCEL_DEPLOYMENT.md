@@ -62,3 +62,5 @@ export default nextConfig;
 Your Asset Crony fractional real estate platform is now **completely clean** and ready for Vercel deployment. The `routes-manifest.json` error has been permanently fixed!
 
 **Just deploy to Vercel and your professional platform will be live!** 🎉
+
+
