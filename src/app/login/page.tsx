@@ -19,22 +19,48 @@ export default function LoginPage() {
     setError('');
     setIsLoading(true);
 
-    // Mock authentication logic
-    // In a real application, this would be an API call to your backend
-    if (email === 'user@example.com' && password === 'password123') {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-      localStorage.setItem('userAuth', JSON.stringify({
-        id: 'u1',
-        name: 'John Smith',
-        email: 'user@example.com',
-        portfolioValue: 25000,
-        portfolioYield: 7.8
-      }));
-      router.push('/dashboard');
-    } else {
-      setError('Invalid email or password');
+    try {
+      // Mock authentication logic
+      // In a real application, this would be an API call to your backend
+      if (email === 'user@example.com' && password === 'password123') {
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+        
+        // Check if localStorage is available (client-side)
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('userAuth', JSON.stringify({
+            id: 'u1',
+            name: 'John Smith',
+            email: 'user@example.com',
+            portfolioValue: 25000,
+            portfolioYield: 7.8,
+            holdings: [
+              {
+                propertyId: 'AC-104',
+                name: 'Toronto Duplex',
+                shares: 10,
+                value: 2500,
+                yield: 8.2
+              },
+              {
+                propertyId: 'AC-203',
+                name: 'Vancouver Waterfront',
+                shares: 5,
+                value: 5200,
+                yield: 5.8
+              }
+            ],
+            dateJoined: '2024-01-15'
+          }));
+        }
+        router.push('/dashboard');
+      } else {
+        setError('Invalid email or password');
+      }
+    } catch {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (

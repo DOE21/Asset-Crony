@@ -89,11 +89,26 @@ export default function InvestPage() {
   };
 
   useEffect(() => {
-    const userAuth = localStorage.getItem('userAuth');
-    if (userAuth) {
-      const userData = JSON.parse(userAuth);
-      setUser(userData);
-    } else {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const userAuth = localStorage.getItem('userAuth');
+        if (userAuth) {
+          const userData = JSON.parse(userAuth);
+          const userWithDefaults = {
+            ...userData,
+            holdings: userData.holdings || [],
+            portfolioValue: userData.portfolioValue || 0,
+            portfolioYield: userData.portfolioYield || 0
+          };
+          setUser(userWithDefaults);
+        } else {
+          router.push('/login');
+        }
+      } else {
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
       router.push('/login');
     }
     setIsLoading(false);
@@ -149,7 +164,9 @@ export default function InvestPage() {
       ]
     };
     
-    localStorage.setItem('userAuth', JSON.stringify(updatedUser));
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem('userAuth', JSON.stringify(updatedUser));
+    }
     setShowInvestmentModal(false);
     
     // Show success message

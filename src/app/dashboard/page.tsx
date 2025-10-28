@@ -45,18 +45,42 @@ export default function UserDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const userAuth = localStorage.getItem('userAuth');
-    if (userAuth) {
-      const userData = JSON.parse(userAuth);
-      setUser(userData);
-    } else {
+    try {
+      // Check if localStorage is available (client-side)
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const userAuth = localStorage.getItem('userAuth');
+        if (userAuth) {
+          const userData = JSON.parse(userAuth);
+          // Ensure required properties exist with defaults
+          const userWithDefaults = {
+            ...userData,
+            holdings: userData.holdings || [],
+            portfolioValue: userData.portfolioValue || 0,
+            portfolioYield: userData.portfolioYield || 0,
+            dateJoined: userData.dateJoined || new Date().toISOString()
+          };
+          setUser(userWithDefaults);
+        } else {
+          router.push('/login');
+        }
+      } else {
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
       router.push('/login');
     }
     setIsLoading(false);
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem('userAuth');
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.removeItem('userAuth');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
     router.push('/');
   };
 
